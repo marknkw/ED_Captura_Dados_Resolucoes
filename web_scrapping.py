@@ -13,16 +13,21 @@ from bs4 import BeautifulSoup
 import json
 # importar Todos os dados usando selenium, pois requests não funciona para abrir conteúdo
 # carregado com javascript
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
+#from selenium import webdriver
+#from selenium.webdriver.chrome.options import Options
+#from selenium.webdriver.common.by import By
+#from selenium.webdriver.chrome.service import Service
 # Define path para webdriver chrome
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 # Ignorar avisos de funções antigas, mas funcionais
 import warnings
 # Adiciona barra de progresso às requisições e webscrappings
 from progress.bar import ShadyBar
+#Import requests-html para lidar com requests em javascript
+#Já que Selenium é lento demais, e precisa de um webdriver, para lidar com requisições
+#em javascript
+from requests_html import HTMLSession
+from requests_html import AsyncHTMLSession
 
 
 # Função para limpar a tela do terminal
@@ -64,24 +69,42 @@ def siteAcessivel(name):
 def downloadDaPagina():
     # Limpa a tela do terminal
     limparTela()
+
+    #---------------------Selenium------------------------------------
     # Abre driver automatizado Selenium com Chrome como WebDriver
     # Força a inicialização de um path momentâneo para o WebDriver
     # Silencia os erros relacionados a avisos de bluetooth
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    motorweb = webdriver.Chrome(
-        options=options, service=Service(
-            ChromeDriverManager().install()))
-    motorweb.get(lerResolucoes())
+    #options = webdriver.ChromeOptions()
+    #options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    #motorweb = webdriver.Chrome(
+        #options=options, service=Service(
+            #ChromeDriverManager().install()))
+    #motorweb.get(lerResolucoes())
     # Espera o site carregar
-    time.sleep(7)
+    #time.sleep(7)
     # Define o tipo de dado recolhido como html e a fonte dos dados os dados
     # alocados na memória do objeto motorweb
-    s = BeautifulSoup(motorweb.page_source, 'html.parser')
+    #s = BeautifulSoup(motorweb.page_source, 'html.parser')
     # Encontra todos os elementos com a tag do tipo "a", ou seja, como um elemento
     # do código HTML
-    links = motorweb.find_elements(By.TAG_NAME, "a")
-    bar = ShadyBar('Processando os dados:', max=len(links) + 1)
+    #links = motorweb.find_elements(By.TAG_NAME, "a")
+    #-----------------------------------------------------------------
+
+    #Atribui à assession uma sessão html assíncrona para carregar todos os dados em javascript
+    ssession = HTMLSession()
+    s = ssession.get(lerResolucoes())
+    s.html.render()
+
+    #Abre a página e espera as informações serem renderizadas
+    #Em sua primeira utilização, o método arender() baixará o webdriver chromium
+    #no diretório local para acesso assíncrono ao carregamento dos snippets em javascript
+
+    # Recolhe todos os links carregador pela página
+    links = list(s.html.links)
+    print(links)
+    print(len(links))
+
+    bar = ShadyBar('Processando os dados:', max=len(links))
     bar.next()
     # Cria arquivo para abrir os links das resolucoes ativas
     file = open("resolucoes.txt", 'w+')
@@ -91,8 +114,8 @@ def downloadDaPagina():
         # Verifica se existe algum elemento com tag do tipo "a" que também
         # é uma referência para um link externo - i.e. endereço para outra página
         # e escreve em um arquivo para ser acessado
-        if "https://www.in.gov.br/web/dou/-/" in str(i.get_attribute("href")):
-            file.write(str(i.get_attribute("href")))
+        if "/web/dou/-/" in str(i).strip("'"):
+            file.write("https://www.in.gov.br/" + str(i))
             file.write("\n")
         bar.next()
     # Fecha o arquivo com os links para as resoluções
