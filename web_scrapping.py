@@ -24,14 +24,14 @@ def siteAcessivel(name):
             limparTela()
             print("Resposta do tipo: ", str(request.status_code))
             print("\nIniciando tentativas de conexão com o site...")
-            time.sleep(0.5)
+            time.sleep(1)
             return lerResolucoes()
         # Verifica se o site está aceitando conexões para query com código do tipo 2
         # mas diferentes de 200
         elif request.status_code != 200 and int(request.status_code) / 100 == 2:
+            waitForSiteResponse(request.status_code, 100, 10)
             print("Resposta do tipo ", str(request.status_code))
             print("\nIniciando tentativas de conexão com o site...")
-            waitForSiteResponse(request.status_code, 100, 10)
 
         else:
             return "Erro: tipo de resposta inesperada recebida pelo site".format(
@@ -43,7 +43,7 @@ def siteAcessivel(name):
         return "Erro: {}".format(e)
 
 # Função de download dos links para acesso às resuluções isoladas
-def downloadDaPagina():
+def downloadDoLinkDaPagina():
     # Limpa a tela do terminal
     limparTela()
     #Atribui à assession uma sessão html assíncrona para carregar todos os dados em javascript
@@ -102,21 +102,24 @@ def criarDiretorio():
     path = os.path.join(os.getcwd(), folder_name)
     if os.path.isdir(path) == False:
         os.mkdir(path)
+    return path
 
 # Cria função para leitura de página de pesquisa das resoluções
-def lerResolucoes(name):
-    file = open(str(name), 'r')
+def lerResolucoes():
+    file = open('site.txt', 'r')
     # Grava nome do site de pesquisa das resoluções em variável
     page = file.readline().strip('\n')
     file.close()
     return page
 
-#Função para abrir arquivos e baixar o conteúdo de cada uma das
+#Função para abrir arquivos e retornar o link de cada uma das
 #páginas contendo as resoluções
-def testeDasPaginas():
+def listaDePaginas():
     #Abre o arquivo com as resoluções e executa o teste de conexão para cada página
     with open('resolucoes.txt', 'r', encoding='UTF-8') as file:
         #uso do operador walrus ':=' implementado na versão 3.8 do python
         #uso re rstrip() para retirada de newlines e espaços indesejados
+        list = []
         while (i := file.readline().rstrip()):
-            print(i)
+            list.append(i)
+    return list
