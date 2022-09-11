@@ -5,6 +5,8 @@ import openpyxl
 from openpyxl.utils import get_column_letter, column_index_from_string
 #Importa requests_html para download do conteúdo da página
 from requests_html import HTMLSession
+#Importa os para remoção de arquivo de resolução
+import os
 
 #Função que salva texto da resolução em arquivo
 def salvarResolu(text, path, number):
@@ -14,12 +16,15 @@ def salvarResolu(text, path, number):
     file = open(path + '/resolucao_' + str(number) + '.txt', 'r', encoding='utf-8')
     resolu = file.readline()
     file.close()
+    os.remove(path + '/resolucao_' + str(number) + '.txt')
+    file = open(path + '/' + str(resolu).strip('\n') + '.txt', 'w+', encoding='utf-8')
+    file.write(text.split("ANEXO", 1)[1])
+    file.close()
     return resolu
 
 #Função que salva estado atual de xlsx
 def salvarExcel(path):
     wb.save(path)
-
 
 #Recebe lista de páginas a serem baixadas e manipuladas
 list = web_scrapping.listaDePaginas()
@@ -52,7 +57,46 @@ for i in range(0, len(list), 1):
             6: "REGISTRO", 7: "VENDA E EMPREGO", 8: "VENCIMENTO", 9: "APRESENTAÇÃO",
             10: "VALIDADE", 11: "CATEGORIA", 12: "ASSUNTO\nPETIÇÃO", 13: "EXPEDIENTE E PETIÇÃO",
             14: "VERSÃO" }
-    wb_active.insert_rows(13)
+
+    wb_active.insert_rows(200)
     for column, value in dados.items():
         wb_active.cell(row = 1, column= column, value = value)
+    #Percorre toas as linhas do arquivo da resolucao e insere na tabela
+    with open(path + '/' + resolu.strip('\n') + '.txt', 'r+', encoding='utf-8') as file:
+        k = 2
+        for line in file:
+            wb_active.cell(row = k, column= 1, value = resolu)
+            if "NOME DA EMPRESA:" in line.rstrip('\n'):
+                if wb_active.cell(row = k, column= 2).value == None:
+                    wb_active.cell(row = k, column= 2, value = line.split(":",1)[1].rstrip('\n'))
+                else:
+                    k+=1
+            elif "AUTORIZAÇÃO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 3, value = line.split(":",1)[1].rstrip('\n'))
+            elif "NOME DO PRODUTO E MARCA" in line.rstrip('\n'):
+                if wb_active.cell(row = k, column= 4).value == None:
+                    wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
+                else:
+                    k+=1
+                    wb_active.cell(row = k, column= 1, value = resolu)
+                    wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
+                    wb_active.cell(row = k, column= 2, value = wb_active.cell(row = k-1, column= 2).value)
+                    wb_active.cell(row = k, column= 3, value = wb_active.cell(row = k-1, column= 3).value)
+            elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 5, value = line.split(":",1)[1].rstrip('\n'))
+            elif "NUMERO DE REGISTRO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 6, value = line.split(":",1)[1].rstrip('\n'))
+            elif "VENDA E EMPREGO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 7, value = line.split(":",1)[1].rstrip('\n'))
+            elif "VENCIMENTO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 8, value = line.split(":",1)[1].rstrip('\n'))
+            elif "APRESENTAÇÃO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 9, value = line.split(":",1)[1].rstrip('\n'))
+            elif "VALIDADE DO PRODUTO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 10, value = line.split(":",1)[1].rstrip('\n'))
+            elif "CATEGORIA:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 11, value = line.split(":",1)[1].rstrip('\n'))
+            elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
+
     salvarExcel(wbname)
