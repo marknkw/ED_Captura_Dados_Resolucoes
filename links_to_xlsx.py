@@ -11,6 +11,15 @@ def salvarResolu(text, path, number):
     file = open(path + '/resolucao_' + str(number) + '.txt', 'w+', encoding='utf-8')
     file.write(text)
     file.close()
+    file = open(path + '/resolucao_' + str(number) + '.txt', 'r', encoding='utf-8')
+    resolu = file.readline()
+    file.close()
+    return resolu
+
+#Função que salva estado atual de xlsx
+def salvarExcel(path):
+    wb.save(path)
+
 
 #Recebe lista de páginas a serem baixadas e manipuladas
 list = web_scrapping.listaDePaginas()
@@ -26,7 +35,21 @@ for i in range(0, len(list), 1):
     resolucoes = link.html.find("#materia > div > div.texto-dou", first = True).text
     #Atribui diretório do query a uma variável
     path = web_scrapping.criarDiretorio()
-    salvarResolu(resolucoes, path, i)
+    #Salva resolução completa em arquivo de texto e retorna nome da resolução
+    resolu = salvarResolu(resolucoes, path, i)
     #Abre novo workbook para adicionar os dados da resolução
     wb = openpyxl.Workbook()
-    wb.save(path + '/' + '.xlsx')
+    #Define nome do excel para dada resolução
+    wbname = (path + '/' + str(resolu).strip('\n') + '.xlsx')
+    #Cria arquivo excel para dada resolução
+    salvarExcel(wbname)
+    wb.close()
+    #Cria uma versão ativa do worksheet a ser trabalhado
+    wb_active = openpyxl.load_workbook(path + '/' + str(resolu).strip('\n') + '.xlsx').active
+    #Define os dados a serem inseridos na primeira coluna de cada excel:
+    dados = {1: "RESOLUÇÃO", 2: "EMPRESA", 3: "AUTORIZAÇÃO", 4: "MARCA", 5: "PROCESSO",
+            6: "REGISTRO", 7: "VENDA E EMPREGO", 8: "VENCIMENTO", 9: "APRESENTAÇÃO",
+            10: "VALIDADE", 11: "CATEGORIA", 12: "ASSUNTO\nPETIÇÃO", 13: "EXPEDIENTE E PETIÇÃO",
+            14: "VERSÃO" }
+    print(dados)
+    
