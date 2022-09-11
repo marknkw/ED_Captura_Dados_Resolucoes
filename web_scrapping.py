@@ -9,19 +9,13 @@ import time
 # Adiciona barra de progresso às requisições e webscrappings
 from progress.bar import ShadyBar
 #Import requests-html para lidar com requests em javascript
-#Já que Selenium é lento demais, e precisa de um webdriver, para lidar com requisições
-#em javascript
 from requests_html import HTMLSession
-
-
 
 # Função para limpar a tela do terminal
 def limparTela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 # Função que verifica se o site está acessível
-
-
 def siteAcessivel(name):
     request = requests.get(str(name))
     try:
@@ -30,7 +24,7 @@ def siteAcessivel(name):
             limparTela()
             print("Resposta do tipo: ", str(request.status_code))
             print("\nIniciando tentativas de conexão com o site...")
-            downloadDaPagina()
+            time.sleep(0.5)
             return lerResolucoes()
         # Verifica se o site está aceitando conexões para query com código do tipo 2
         # mas diferentes de 200
@@ -49,8 +43,6 @@ def siteAcessivel(name):
         return "Erro: {}".format(e)
 
 # Função de download dos links para acesso às resuluções isoladas
-
-
 def downloadDaPagina():
     # Limpa a tela do terminal
     limparTela()
@@ -112,19 +104,19 @@ def criarDiretorio():
         os.mkdir(path)
 
 # Cria função para leitura de página de pesquisa das resoluções
-
-
-def lerResolucoes():
-    file = open("site.txt", 'r')
+def lerResolucoes(name):
+    file = open(str(name), 'r')
     # Grava nome do site de pesquisa das resoluções em variável
     page = file.readline().strip('\n')
     file.close()
     return page
 
-
-# Cria diretório para pesquisa com a data do query a ser realizado
-criarDiretorio()
-
-# Abre a página de busca das resoluções para verificar acessibilidade da página
-print("Iniciando tentativas de conexão com o site...")
-page = siteAcessivel(lerResolucoes())
+#Função para abrir arquivos e baixar o conteúdo de cada uma das
+#páginas contendo as resoluções
+def testeDasPaginas():
+    #Abre o arquivo com as resoluções e executa o teste de conexão para cada página
+    with open('resolucoes.txt', 'r', encoding='UTF-8') as file:
+        #uso do operador walrus ':=' implementado na versão 3.8 do python
+        #uso re rstrip() para retirada de newlines e espaços indesejados
+        while (i := file.readline().rstrip()):
+            print(i)
