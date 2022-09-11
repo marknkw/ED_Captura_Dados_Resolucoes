@@ -45,11 +45,14 @@ for i in range(0, len(list), 1):
     salvarExcel(wbname)
     wb.close()
     #Cria uma versão ativa do worksheet a ser trabalhado
-    wb_active = openpyxl.load_workbook(path + '/' + str(resolu).strip('\n') + '.xlsx').active
+    wb = openpyxl.load_workbook(path + '/' + str(resolu).strip('\n') + '.xlsx')
+    wb_active = wb.active
     #Define os dados a serem inseridos na primeira coluna de cada excel:
     dados = {1: "RESOLUÇÃO", 2: "EMPRESA", 3: "AUTORIZAÇÃO", 4: "MARCA", 5: "PROCESSO",
             6: "REGISTRO", 7: "VENDA E EMPREGO", 8: "VENCIMENTO", 9: "APRESENTAÇÃO",
             10: "VALIDADE", 11: "CATEGORIA", 12: "ASSUNTO\nPETIÇÃO", 13: "EXPEDIENTE E PETIÇÃO",
             14: "VERSÃO" }
-    print(dados)
-    
+    wb_active.insert_rows(13)
+    for column, value in dados.items():
+        wb_active.cell(row = 1, column= column, value = value)
+    salvarExcel(wbname)
