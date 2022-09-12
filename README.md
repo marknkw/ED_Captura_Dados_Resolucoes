@@ -1,2 +1,11 @@
 # EDJR_Captura_Dados_Resolucoes
- Captura de dados de resoluções em xlsx e em csv
+Tutorial:
+
+1 - To Install all dependencies:
+```sh
+pip install -r requirements.txt
+```
+2 - To run application:
+```sh
+python links_to_xlsx.py
+```
