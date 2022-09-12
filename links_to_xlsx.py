@@ -79,15 +79,12 @@ for i in range(0, len(list), 1):
                 if k>=2 and empresa != wb_active.cell(row = k-1, column= 2).value:
                     wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
                     produto = wb_active.cell(row = k, column= 4).value
-                    print(produto)
 
                 if produto == line.split(":",1)[1].rstrip('\n'):
-                    print("aqui")
                     k+=1
                     wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
                     wb_active.cell(row = k, column= 3, value = autorizacao)
                     wb_active.cell(row = k, column= 2, value = empresa)
-
 
             elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 5, value = line.split(":",1)[1].rstrip('\n'))
@@ -107,6 +104,5 @@ for i in range(0, len(list), 1):
                 wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
             elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
-            elif "_ _ _" in line:
-                salvarExcel(wbname)
-                k+=1
+        salvarExcel(wbname)
+            
