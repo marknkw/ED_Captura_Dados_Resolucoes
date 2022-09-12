@@ -18,7 +18,7 @@ def salvarResolu(text, path, number):
     file.close()
     os.remove(path + '/resolucao_' + str(number) + '.txt')
     file = open(path + '/' + str(resolu).strip('\n') + '.txt', 'w+', encoding='utf-8')
-    file.write(text.split("ANEXO", 1)[1])
+    file.write(text.split('RODRIGO JOSE VIANA OTTONI', 1)[1] + '\n')
     file.close()
     return resolu
 
@@ -64,24 +64,31 @@ for i in range(0, len(list), 1):
     #Percorre toas as linhas do arquivo da resolucao e insere na tabela
     with open(path + '/' + resolu.strip('\n') + '.txt', 'r+', encoding='utf-8') as file:
         k = 2
+        produto = []
         for line in file:
             wb_active.cell(row = k, column= 1, value = resolu)
             if "NOME DA EMPRESA:" in line.rstrip('\n'):
-                if wb_active.cell(row = k, column= 2).value == None:
-                    wb_active.cell(row = k, column= 2, value = line.split(":",1)[1].rstrip('\n'))
-                else:
-                    k+=1
+                wb_active.cell(row = k, column= 2, value = line.split(":",1)[1].rstrip('\n'))
+                empresa = wb_active.cell(row = k, column= 2).value
+                print(empresa)
             elif "AUTORIZAÇÃO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 3, value = line.split(":",1)[1].rstrip('\n'))
-            elif "NOME DO PRODUTO E MARCA" in line.rstrip('\n'):
-                if wb_active.cell(row = k, column= 4).value == None:
+                autorizacao = wb_active.cell(row = k, column= 3).value
+                print(autorizacao)
+            elif "NOME DO PRODUTO E MARCA:" in line.rstrip('\n'):
+                if k>=2 and empresa != wb_active.cell(row = k-1, column= 2).value:
                     wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
-                else:
+                    produto = wb_active.cell(row = k, column= 4).value
+                    print(produto)
+
+                if produto == line.split(":",1)[1].rstrip('\n'):
+                    print("aqui")
                     k+=1
-                    wb_active.cell(row = k, column= 1, value = resolu)
                     wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
-                    wb_active.cell(row = k, column= 2, value = wb_active.cell(row = k-1, column= 2).value)
-                    wb_active.cell(row = k, column= 3, value = wb_active.cell(row = k-1, column= 3).value)
+                    wb_active.cell(row = k, column= 3, value = autorizacao)
+                    wb_active.cell(row = k, column= 2, value = empresa)
+
+
             elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 5, value = line.split(":",1)[1].rstrip('\n'))
             elif "NUMERO DE REGISTRO:" in line.rstrip('\n'):
@@ -98,5 +105,8 @@ for i in range(0, len(list), 1):
                 wb_active.cell(row = k, column= 11, value = line.split(":",1)[1].rstrip('\n'))
             elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
-
-    salvarExcel(wbname)
+            elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
+                wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
+            elif "_ _ _" in line:
+                salvarExcel(wbname)
+                k+=1
