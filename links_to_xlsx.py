@@ -26,8 +26,9 @@ def salvarResolu(text, path, number):
 def salvarExcel(path):
     wb.save(path)
 
-
+#Verifica se os sites de petições estão acessíveis
 web_scrapping.siteAcessivel(web_scrapping.lerResolucoes())
+#Realiza o download da página de petições
 web_scrapping.downloadDoLinkDaPagina()
 #Recebe lista de páginas a serem baixadas e manipuladas
 list = web_scrapping.listaDePaginas()
