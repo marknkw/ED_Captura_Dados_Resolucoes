@@ -26,10 +26,14 @@ def salvarResolu(text, path, number):
 def salvarExcel(path):
     wb.save(path)
 
+
+web_scrapping.siteAcessivel(web_scrapping.lerResolucoes())
+web_scrapping.downloadDoLinkDaPagina()
 #Recebe lista de páginas a serem baixadas e manipuladas
 list = web_scrapping.listaDePaginas()
 #Cria Diretório para armazenar arquivos das páginas
 caminho = web_scrapping.criarDiretorio()
+
 #Atribui cada resolução à uma variável
 for i in range(0, len(list), 1):
     session = HTMLSession()
@@ -64,32 +68,26 @@ for i in range(0, len(list), 1):
     #Percorre toas as linhas do arquivo da resolucao e insere na tabela
     with open(path + '/' + resolu.strip('\n') + '.txt', 'r+', encoding='utf-8') as file:
         k = 2
-        produto = []
+        registro = None
         for line in file:
-            wb_active.cell(row = k, column= 1, value = resolu)
             if "NOME DA EMPRESA:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 2, value = line.split(":",1)[1].rstrip('\n'))
-                empresa = wb_active.cell(row = k, column= 2).value
-                print(empresa)
+                wb_active.cell(row = k, column= 1, value = resolu)
+                empresa = line.split(":",1)[1].rstrip('\n')
             elif "AUTORIZAÇÃO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 3, value = line.split(":",1)[1].rstrip('\n'))
-                autorizacao = wb_active.cell(row = k, column= 3).value
-                print(autorizacao)
+                autorizacao = line.split(":",1)[1].rstrip('\n')
             elif "NOME DO PRODUTO E MARCA:" in line.rstrip('\n'):
-                if k>=2 and empresa != wb_active.cell(row = k-1, column= 2).value:
-                    wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
-                    produto = wb_active.cell(row = k, column= 4).value
-
-                if produto == line.split(":",1)[1].rstrip('\n'):
-                    k+=1
-                    wb_active.cell(row = k, column= 4, value = line.split(":",1)[1].rstrip('\n'))
-                    wb_active.cell(row = k, column= 3, value = autorizacao)
-                    wb_active.cell(row = k, column= 2, value = empresa)
-
+                produto = line.split(":",1)[1].rstrip('\n')
             elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 5, value = line.split(":",1)[1].rstrip('\n'))
+                processo = line.split(":",1)[1].rstrip('\n')
             elif "NUMERO DE REGISTRO:" in line.rstrip('\n'):
+                k+=1
+                wb_active.cell(row = k, column= 4, value = produto)
+                wb_active.cell(row = k, column= 3, value = autorizacao)
+                wb_active.cell(row = k, column= 2, value = empresa)
+                wb_active.cell(row = k, column= 5, value = processo)
                 wb_active.cell(row = k, column= 6, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row = k, column= 1, value = resolu)
+
             elif "VENDA E EMPREGO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 7, value = line.split(":",1)[1].rstrip('\n'))
             elif "VENCIMENTO:" in line.rstrip('\n'):
@@ -102,7 +100,5 @@ for i in range(0, len(list), 1):
                 wb_active.cell(row = k, column= 11, value = line.split(":",1)[1].rstrip('\n'))
             elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
-            elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
         salvarExcel(wbname)
-            
+    wb.close()

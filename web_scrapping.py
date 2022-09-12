@@ -83,14 +83,12 @@ def waitForSiteResponse(response, time, timewait):
             print("Site não responsivo...\n"
                   "Fechando o programa")
             # Sai do programa
-            exit()
+            break
         if response.status_code == 200:
             break
     return
 
 # Cria diretório para armazenamento de link da página e tabela com dados
-
-
 def criarDiretorio():
     # A função criará diretório novo para arquivos se ele não existir;
     # caso contrário, utilizará diretório para data atua
