@@ -7,8 +7,6 @@ from openpyxl.utils import get_column_letter, column_index_from_string
 from requests_html import HTMLSession
 #Importa os para remoção de arquivo de resolução
 import os
-# Adiciona barra de progresso às requisições e webscrappings
-from progress.bar import ShadyBar
 
 #Função que salva texto da resolução em arquivo
 def salvarResolu(text, path, number):
@@ -36,10 +34,7 @@ web_scrapping.downloadDoLinkDaPagina()
 list = web_scrapping.listaDePaginas()
 #Cria Diretório para armazenar arquivos das páginas
 caminho = web_scrapping.criarDiretorio()
-#Limpa a tela
-web_scrapping.limparTela()
-#Inicializa a barra de progresso
-bar = ShadyBar('Processando os dados:', max=len(list))
+
 #Atribui cada resolução à uma variável
 for i in range(0, len(list), 1):
     session = HTMLSession()
@@ -107,7 +102,4 @@ for i in range(0, len(list), 1):
             elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
                 wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
         salvarExcel(wbname)
-    bar.next()
-    #Fecha wb sendo trabalhado para possibilitar abrir novo arquivo excel
     wb.close()
-bar.finish()
