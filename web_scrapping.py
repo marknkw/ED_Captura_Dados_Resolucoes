@@ -76,10 +76,11 @@ def downloadDoLinkDaPagina():
 # get da página
 def waitForSiteResponse(response, time, timewait):
     timer = 0
+
     while response.status_code != 200:
         time.sleep(timewait)
         timer += timewait
-        if timer >= timeout and response.status_code != 200:
+        if timer >= time and response.status_code != 200:
             print("Site não responsivo...\n"
                   "Fechando o programa")
             # Sai do programa
