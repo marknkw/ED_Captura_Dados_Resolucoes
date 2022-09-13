@@ -29,7 +29,7 @@ def siteAcessivel(name):
         # Verifica se o site está aceitando conexões para query com código do tipo 2
         # mas diferentes de 200
         elif request.status_code != 200 and int(request.status_code) / 100 == 2:
-            waitForSiteResponse(request.status_code, 100, 10)
+            esperarRespostadDoSite(request.status_code, 100, 10)
             print("Resposta do tipo ", str(request.status_code))
             print("\nIniciando tentativas de conexão com o site...")
 
@@ -74,7 +74,7 @@ def downloadDoLinkDaPagina():
 
 # Função que faz o programa esperar pelo código de requisição 200 para qualquer
 # get da página
-def waitForSiteResponse(response, time, timewait):
+def esperarRespostadDoSite(response, time, timewait):
     timer = 0
 
     while response.status_code != 200:
