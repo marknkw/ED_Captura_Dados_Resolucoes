@@ -83,7 +83,7 @@ def waitForSiteResponse(response, time, timewait):
             print("Site não responsivo...\n"
                   "Fechando o programa")
             # Sai do programa
-            break
+            exit()
         if response.status_code == 200:
             break
     return
