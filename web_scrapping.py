@@ -37,12 +37,12 @@ def siteAcessivel(name):
             return "Erro: tipo de resposta inesperada recebida pelo site".format(
                 request)
 
-    except requests.execeptions.RequestExecption as e:
+    except requests.exceptions.RequestException as e:
         # Para qualquer outro tipo de resposta que não tenha retorno para get
         # O programa retornará o tipo de erro emitido pelo Site
         return "Erro: {}".format(e)
 
-# Função de download dos links para acesso às resuluções isoladas
+# Função de download dos links para acesso às resoluções isoladas
 def downloadDoLinkDaPagina():
     # Limpa a tela do terminal
     limparTela()
