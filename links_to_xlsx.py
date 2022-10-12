@@ -1,113 +1,124 @@
-#Importa funções de web_scrapping
+# Importa funções de web_scrapping
+from asyncio.subprocess import Process
 import web_scrapping
-#Importa biblioteca que lida com funções de criação do xlsx
+# Importa biblioteca que lida com funções de criação do xlsx
 import openpyxl
 from openpyxl.utils import get_column_letter, column_index_from_string
-#Importa requests_html para download do conteúdo da página
+# Importa requests_html para download do conteúdo da página
 from requests_html import HTMLSession
-#Importa os para remoção de arquivo de resolução
+# Importa os para remoção de arquivo de resolução
 import os
 # Adiciona barra de progresso às requisições e webscrappings
 from progress.bar import ShadyBar
 
-#Função que salva texto da resolução em arquivo
-def salvarResolu(text, path, number):
-    file = open(path + '/resolucao_' + str(number) + '.txt', 'w+', encoding='utf-8')
-    file.write(text)
-    file.close()
-    file = open(path + '/resolucao_' + str(number) + '.txt', 'r', encoding='utf-8')
-    resolu = file.readline()
-    file.close()
-    os.remove(path + '/resolucao_' + str(number) + '.txt')
-    file = open(path + '/' + str(resolu).strip('\n') + '.txt', 'w+', encoding='utf-8')
-    file.write(text.split('RODRIGO JOSE VIANA OTTONI', 1)[1] + '\n')
-    file.close()
+# Função que salva texto da resolução em arquivo
+
+
+def salvarResolu(text, path, number) -> str:
+    with open(f'{path}/resolucao_{str(number)}.txt', 'w+', encoding='utf-8') as file:
+        file.write(text)
+    with open(f'{path}/resolucao_{str(number)}.txt', 'r', encoding='utf-8') as file:
+        resolu = file.readline()
+    os.remove(f'{path}/resolucao_{str(number)}.txt')
+    with open(f'{path}/' + str(resolu).strip('\n') + '.txt', 'w+', encoding='utf-8') as file:
+        file.write(text.split('ANEXO', 1)[1] + '\n')
     return resolu
 
-#Função que salva estado atual de xlsx
-def salvarExcel(path):
+# Função que salva estado atual de xlsx
+
+
+def salvarExcel(path) -> None:
     wb.save(path)
 
-#Verifica se os sites de petições estão acessíveis
+
+# Verifica se os sites de petições estão acessíveis
 web_scrapping.siteAcessivel(web_scrapping.lerResolucoes())
-#Realiza o download da página de petições
+# Realiza o download da página de petições
 web_scrapping.downloadDoLinkDaPagina()
-#Recebe lista de páginas a serem baixadas e manipuladas
+# Recebe lista de páginas a serem baixadas e manipuladas
 list = web_scrapping.listaDePaginas()
-#Cria Diretório para armazenar arquivos das páginas
+# Cria Diretório para armazenar arquivos das páginas
 caminho = web_scrapping.criarDiretorio()
-#Limpa a tela
+# Limpa a tela
 web_scrapping.limparTela()
-#Inicializa a barra de progresso
+# Inicializa a barra de progresso
 bar = ShadyBar('Processando os dados:', max=len(list))
-#Atribui cada resolução à uma variável
-for i in range(0, len(list), 1):
+# Atribui cada resolução à uma variável
+for i in range(len(list)):
     session = HTMLSession()
     link = session.get(list[i])
-    #Resolve conteúdo acessível por javascript
-    link.html.render()
-    #Atribui todo condeúdo de elemento com dados da resolução à variável resolucoes
-    resolucoes = link.html.find("#materia > div > div.texto-dou", first = True).text
-    #Atribui diretório do query a uma variável
+    # Resolve conteúdo acessível por javascript
+    link.html.render()  # type: ignore
+    # Atribui todo condeúdo de elemento com dados da resolução à variável resolucoes
+    resolucoes = link.html.find(  # type: ignore
+        "#materia > div > div.texto-dou", first=True).text  # type: ignore
+    # Atribui diretório do query a uma variável
     path = web_scrapping.criarDiretorio()
-    #Salva resolução completa em arquivo de texto e retorna nome da resolução
+    # Salva resolução completa em arquivo de texto e retorna nome da resolução
     resolu = salvarResolu(resolucoes, path, i)
-    #Abre novo workbook para adicionar os dados da resolução
+    # Abre novo workbook para adicionar os dados da resolução
     wb = openpyxl.Workbook()
-    #Define nome do excel para dada resolução
-    wbname = (path + '/' + str(resolu).strip('\n') + '.xlsx')
-    #Cria arquivo excel para dada resolução
+    # Define nome do excel para dada resolução
+    wbname = f'{path}/' + str(resolu).strip('\n') + '.xlsx'
+    # Cria arquivo excel para dada resolução
     salvarExcel(wbname)
     wb.close()
-    #Cria uma versão ativa do worksheet a ser trabalhado
-    wb = openpyxl.load_workbook(path + '/' + str(resolu).strip('\n') + '.xlsx')
+    # Cria uma versão ativa do worksheet a ser trabalhado
+    wb = openpyxl.load_workbook(f'{path}/' + str(resolu).strip('\n') + '.xlsx')
     wb_active = wb.active
-    #Define os dados a serem inseridos na primeira coluna de cada excel:
+    # Define os dados a serem inseridos na primeira coluna de cada excel:
     dados = {1: "RESOLUÇÃO", 2: "EMPRESA", 3: "AUTORIZAÇÃO", 4: "MARCA", 5: "PROCESSO",
-            6: "REGISTRO", 7: "VENDA E EMPREGO", 8: "VENCIMENTO", 9: "APRESENTAÇÃO",
-            10: "VALIDADE", 11: "CATEGORIA", 12: "ASSUNTO\nPETIÇÃO", 13: "EXPEDIENTE E PETIÇÃO",
-            14: "VERSÃO" }
+             6: "REGISTRO", 7: "VENDA E EMPREGO", 8: "VENCIMENTO", 9: "APRESENTAÇÃO",
+             10: "VALIDADE", 11: "CATEGORIA", 12: "ASSUNTO\nPETIÇÃO", 13: "EXPEDIENTE E PETIÇÃO",
+             14: "VERSÃO"}
 
     wb_active.insert_rows(200)
     for column, value in dados.items():
-        wb_active.cell(row = 1, column= column, value = value)
-    #Percorre toas as linhas do arquivo da resolucao e insere na tabela
-    with open(path + '/' + resolu.strip('\n') + '.txt', 'r+', encoding='utf-8') as file:
+        wb_active.cell(row=1, column=column, value=value)
+    # Percorre toas as linhas do arquivo da resolucao e insere na tabela
+    with open(f'{path}/' + resolu.strip('\n') + '.txt', 'r+', encoding='utf-8') as file:
         k = 2
         registro = None
         for line in file:
             if "NOME DA EMPRESA:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 1, value = resolu)
-                empresa = line.split(":",1)[1].rstrip('\n')
+                wb_active.cell(row=k, column=1, value=resolu)
+                empresa = line.split(":", 1)[1].rstrip('\n')
             elif "AUTORIZAÇÃO:" in line.rstrip('\n'):
-                autorizacao = line.split(":",1)[1].rstrip('\n')
+                autorizacao = line.split(":", 1)[1].rstrip('\n')
             elif "NOME DO PRODUTO E MARCA:" in line.rstrip('\n'):
-                produto = line.split(":",1)[1].rstrip('\n')
+                produto = line.split(":", 1)[1].rstrip('\n')
             elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
-                processo = line.split(":",1)[1].rstrip('\n')
+                processo = line.split(":", 1)[1].rstrip('\n')
             elif "NUMERO DE REGISTRO:" in line.rstrip('\n'):
-                k+=1
-                wb_active.cell(row = k, column= 4, value = produto)
-                wb_active.cell(row = k, column= 3, value = autorizacao)
-                wb_active.cell(row = k, column= 2, value = empresa)
-                wb_active.cell(row = k, column= 5, value = processo)
-                wb_active.cell(row = k, column= 6, value = line.split(":",1)[1].rstrip('\n'))
-                wb_active.cell(row = k, column= 1, value = resolu)
+                k += 1
+                wb_active.cell(row=k, column=4, value=((str)produto == None)) ? ' ': str(produto)
+                wb_active.cell(row=k, column=3, value=None ? " ": str(autorizacao))
+                wb_active.cell(row=k, column=2, value=None ? " ": str(empresa))
+                wb_active.cell(row=k, column=5, value=str(Process))
+                wb_active.cell(row=k, column=6, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=1, value=resolu)
 
             elif "VENDA E EMPREGO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 7, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=7, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
             elif "VENCIMENTO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 8, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=8, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
             elif "APRESENTAÇÃO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 9, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=9, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
             elif "VALIDADE DO PRODUTO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 10, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=10, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
             elif "CATEGORIA:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 11, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=11, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
             elif "ASSUNTO DA PETIÇÃO:" in line.rstrip('\n'):
-                wb_active.cell(row = k, column= 12, value = line.split(":",1)[1].rstrip('\n'))
+                wb_active.cell(row=k, column=12, value=line.split(
+                    ":", 1)[1].rstrip('\n'))
         salvarExcel(wbname)
     bar.next()
-    #Fecha wb sendo trabalhado para possibilitar abrir novo arquivo excel
+    # Fecha wb sendo trabalhado para possibilitar abrir novo arquivo excel
     wb.close()
 bar.finish()

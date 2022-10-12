@@ -12,6 +12,7 @@ GO
 
 CREATE TABLE [Assunto] (
   [id] int PRIMARY KEY,
+  
   [Description] nvarchar(255)
 )
 GO
