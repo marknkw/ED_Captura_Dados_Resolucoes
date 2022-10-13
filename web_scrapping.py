@@ -5,7 +5,7 @@ import os
 # Importa date para verificar, e manipular, datetype(timestamp)
 from datetime import *
 # Importar time para verificar tempo de resposta de uma página
-import time
+from time import sleep
 # Adiciona barra de progresso às requisições e webscrappings
 from progress.bar import ShadyBar
 #Import requests-html para lidar com requests em javascript
@@ -28,7 +28,7 @@ def siteAcessivel(name) -> str:  # type: ignore
             limparTela()
             print("Resposta do tipo: ", request.status_code)
             print("\nIniciando tentativas de conexão com o site...")
-            time.sleep(1)  # type: ignore
+            sleep(1)
             return lerResolucoes()
         elif int(request.status_code) == 200:
             esperarRespostadDoSite(request.status_code, 100, 10)
