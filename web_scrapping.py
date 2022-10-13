@@ -20,7 +20,7 @@ def limparTela() -> None:
 # Função que verifica se o site está acessível
 
 
-def siteAcessivel(name) -> str | None:
+def siteAcessivel(name) -> str:  # type: ignore
     request = requests.get(str(name))
     try:
         if request.status_code == 200:

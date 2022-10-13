@@ -1,5 +1,7 @@
 # Importa funções de web_scrapping
 from asyncio.subprocess import Process
+from asyncio.windows_events import NULL
+from multiprocessing import process
 import web_scrapping
 # Importa biblioteca que lida com funções de criação do xlsx
 import openpyxl
@@ -82,19 +84,25 @@ for i in range(len(list)):
         for line in file:
             if "NOME DA EMPRESA:" in line.rstrip('\n'):
                 wb_active.cell(row=k, column=1, value=resolu)
-                empresa = line.split(":", 1)[1].rstrip('\n')
+                empresa = line.split(":", 1)[1].rstrip('\n') if (line.split(
+                    ":", 1)[1].rstrip('\n')) != NULL else line.split(":", 1)[1].rstrip('\n')
             elif "AUTORIZAÇÃO:" in line.rstrip('\n'):
-                autorizacao = line.split(":", 1)[1].rstrip('\n')
+                autorizacao = line.split(":", 1)[1].rstrip('\n') if (line.split(
+                    ":", 1)[1].rstrip('\n')) != NULL else line.split(":", 1)[1].rstrip('\n')
             elif "NOME DO PRODUTO E MARCA:" in line.rstrip('\n'):
-                produto = line.split(":", 1)[1].rstrip('\n')
+                produto = line.split(":", 1)[1].rstrip('\n') if (line.split(
+                    ":", 1)[1].rstrip('\n')) != NULL else line.split(":", 1)[1].rstrip('\n')
             elif "NUMERO DE PROCESSO:" in line.rstrip('\n'):
-                processo = line.split(":", 1)[1].rstrip('\n')
+                processo = line.split(":", 1)[1].rstrip('\n') if (line.split(
+                    ":", 1)[1].rstrip('\n')) != NULL else line.split(":", 1)[1].rstrip('\n')
             elif "NUMERO DE REGISTRO:" in line.rstrip('\n'):
                 k += 1
-                wb_active.cell(row=k, column=4, value=((str)produto == None)) ? ' ': str(produto)
-                wb_active.cell(row=k, column=3, value=None ? " ": str(autorizacao))
-                wb_active.cell(row=k, column=2, value=None ? " ": str(empresa))
-                wb_active.cell(row=k, column=5, value=str(Process))
+                wb_active.cell(row=k, column=4, value=produto)  # type: ignore
+                # type: ignore
+                wb_active.cell(row=k, column=3, value=autorizacao)# type: ignore
+                wb_active.cell(row=k, column=2, value=str(
+                    empresa))  # type: ignore
+                wb_active.cell(row=k, column=5, value=processo)  # type: ignore
                 wb_active.cell(row=k, column=6, value=line.split(
                     ":", 1)[1].rstrip('\n'))
                 wb_active.cell(row=k, column=1, value=resolu)
