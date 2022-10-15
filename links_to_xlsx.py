@@ -34,6 +34,7 @@ def salvarExcel(path) -> None:
 
 
 # Verifica se os sites de petições estão acessíveis
+# sourcery skip: avoid-builtin-shadow
 web_scrapping.siteAcessivel(web_scrapping.lerResolucoes())
 # Realiza o download da página de petições
 web_scrapping.downloadDoLinkDaPagina()
